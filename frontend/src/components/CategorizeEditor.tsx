@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import React, { useState, useCallback ,useRef,useEffect} from "react"
 import { X, GripVertical, Plus, ImageIcon } from 'lucide-react'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
@@ -36,37 +36,30 @@ function SortableItem({ id, children }: { id: string; children: React.ReactNode 
   }
   
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      {children}
-    </div>
+    <div
+    ref={setNodeRef}
+    style={style}
+    {...attributes}
+    {...listeners}
+  >
+    {children}
+  </div>
   )
 }
 
 export const CategorizeEditor: React.FC<CategorizeEditorProps> = ({ question, onChange }) => {
-  const [categories, setCategories] = useState<Category[]>(
-    question.categories.map((name, index) => ({ id: index.toString(), name }))
-  );
-  const [items, setItems] = useState<Item[]>(
-    question.items.map((item, index) => ({ 
-      id: index.toString(), 
-      text: item.text, 
-      belongsTo: item.category 
-    }))
-  );
+  const [categories, setCategories] = useState<Category[]>([
+    { id: "1", name: "" },
+    { id: "2", name: "" },
+  ])
+  const [items, setItems] = useState<Item[]>([
+    { id: "1", text: "", belongsTo: "" },
+  ])
   const [description, setDescription] = useState("")
   const [image, setImage] = useState<File | null>(null)
 
-  useEffect(() => {
-    onChange({
-      ...question,
-      categories: categories.map(c => c.name),
-      items: items.map(item => ({
-        text: item.text,
-        category: item.belongsTo
-      }))
-    });
-    
-  }, [categories, items]);
+  const inputRef = useRef(null);
+
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -75,43 +68,47 @@ export const CategorizeEditor: React.FC<CategorizeEditorProps> = ({ question, on
     })
   )
 
-  const addCategory = () => {
+  const addCategory = useCallback(() => {
     const newId = (categories.length + 1).toString()
-    setCategories([...categories, { id: newId, name: "" }])
-  }
+    setCategories(prev => [...prev, { id: newId, name: "" }])
+  }, [categories])
 
-  const addItem = () => {
+  const addItem = useCallback(() => {
     const newId = (items.length + 1).toString()
-    setItems([...items, { id: newId, text: "", belongsTo: "" }])
-  }
+    setItems(prev => [...prev, { id: newId, text: "", belongsTo: "" }])
+  }, [items])
 
-  const removeCategory = (id: string) => {
-    setCategories(categories.filter(category => category.id !== id))
-  }
+  const removeCategory = useCallback((id: string) => {
+    setCategories(prev => prev.filter(category => category.id !== id))
+  }, [])
 
-  const removeItem = (id: string) => {
-    setItems(items.filter(item => item.id !== id))
-  }
-
-  const updateCategory = (id: string, name: string) => {
-    setCategories(
-      categories.map(category =>
-        category.id === id ? { ...category, name } : category
-      )
-    )
-  }
-
-  const updateItem = (id: string, text: string, belongsTo?: string) => {
-    setItems(
-      items.map(item =>
+  const updateItem = useCallback((id: string, text?: string, belongsTo?: string) => {
+    setItems(prev =>
+      prev.map(item =>
         item.id === id
-          ? { ...item, text, ...(belongsTo && { belongsTo }) }
+          ? {
+              ...item,
+              ...(text !== undefined ? { text } : {}),
+              ...(belongsTo !== undefined ? { belongsTo } : {}),
+            }
           : item
       )
     )
-  }
+  }, [])
+  
+  const removeItem = useCallback((id: string) => {
+    setItems(prev => prev.filter(item => item.id !== id))
+  }, [])
 
-  const handleDragEnd = (event: any, listType: 'categories' | 'items') => {
+  const updateCategory = useCallback((id: string, name: string) => {
+    setCategories(prev =>
+      prev.map(category =>
+        category.id === id ? { ...category, name } : category
+      )
+    )
+  }, [])
+
+  const handleDragEnd = useCallback((event: any, listType: 'categories' | 'items') => {
     const { active, over } = event
 
     if (active.id !== over.id) {
@@ -129,35 +126,34 @@ export const CategorizeEditor: React.FC<CategorizeEditorProps> = ({ question, on
         })
       }
     }
-  }
+  }, [])
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setImage(e.target.files[0])
     }
-  }
+  }, [])
 
   return (
     <div className="w-full bg-white rounded-lg shadow-md">
       <div className="p-6 space-y-6">
-        <div className="space-y-4 ">
+        <div className="space-y-4">
           <label className="block text-sm font-medium text-gray-700">Description (Optional)</label>
-         <div className="flex space-x-2">
-            <textarea 
-            className="w-full p-2   border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <textarea 
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Enter question description..." 
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
           />
-          <div className="">
-            <div 
-              className="inline-flex items-center px-2 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          <div className="flex items-center space-x-2">
+            <button 
+              className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               onClick={() => document.getElementById('image-upload')?.click()}
             >
-              <ImageIcon className="h-4 w-4 " />
-              
-            </div>
+              <ImageIcon className="h-4 w-4 mr-2" />
+              Add Image
+            </button>
             <input 
               id="image-upload" 
               type="file" 
@@ -167,7 +163,6 @@ export const CategorizeEditor: React.FC<CategorizeEditorProps> = ({ question, on
             />
             {image && <span className="text-sm text-gray-500">{image.name}</span>}
           </div>
-          </div> 
         </div>
 
         <div className="space-y-4">
@@ -193,6 +188,7 @@ export const CategorizeEditor: React.FC<CategorizeEditorProps> = ({ question, on
                         placeholder={`Category ${category.id}`}
                         value={category.name}
                         onChange={(e) => updateCategory(category.id, e.target.value)}
+                     
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                       <button
@@ -232,11 +228,13 @@ export const CategorizeEditor: React.FC<CategorizeEditorProps> = ({ question, on
                         placeholder={`Item ${item.id}`}
                         value={item.text}
                         onChange={(e) => updateItem(item.id, e.target.value)}
+                      
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                       <select
                         value={item.belongsTo}
-                        onChange={(e) => updateItem(item.id, item.text, e.target.value)}
+                        onChange={(e) => updateItem(item.id, undefined, e.target.value)}
+                       
                         className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
                         <option value="">Belongs to...</option>
@@ -265,3 +263,11 @@ export const CategorizeEditor: React.FC<CategorizeEditorProps> = ({ question, on
 }
 
 export default CategorizeEditor;
+
+
+
+
+
+
+
+

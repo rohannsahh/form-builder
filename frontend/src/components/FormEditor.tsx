@@ -1,6 +1,10 @@
+
+
+
 import React, { useState } from 'react';
-import { PlusCircle, Image as ImageIcon } from 'lucide-react';
-import { Form } from '../types/form';
+import { PlusCircle, Image as ImageIcon, Save } from 'lucide-react';
+import { CategorizeQuestion, ClozeQuestion,ComprehensionQuestion, Form } from '../types/form';
+import { api } from '../api/forms';
 import QuestionEditor from './QuestionEditor';
 
 const FormEditor: React.FC = () => {
@@ -10,6 +14,8 @@ const FormEditor: React.FC = () => {
     description: '',
     questions: []
   });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const addQuestion = (type: 'categorize' | 'cloze' | 'comprehension') => {
     setForm(prev => ({
@@ -19,27 +25,60 @@ const FormEditor: React.FC = () => {
         type,
         title: '',
         description: '',
-        ...(type === 'categorize' 
-          ? { type: 'categorize' as const, categories: [], items: [] } :
-          type === 'cloze' 
-          ? { type: 'cloze' as const, text: '', blanks: [] } :
-          { type: 'comprehension' as const, passage: '', questions: [] })
+          ...(type === 'categorize' 
+            ? { type: 'categorize' as const, categories: [], items: [] } :
+            type === 'cloze' 
+            ? { type: 'cloze' as const, text: '', blanks: [] } :
+            { type: 'comprehension' as const, passage: '', questions: [] })
       }]
     }));
+  };
+
+  const saveForm = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+      
+      if (form._id) {
+        await api.updateForm(form._id, form);
+      } else {
+        const { data } = await api.createForm(form);
+        setForm(data);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save form');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div className="mb-4">
-          <input
-            type="text"
-            value={form.title}
-            onChange={(e) => setForm(prev => ({ ...prev, title: e.target.value }))}
-            className="text-2xl font-bold w-full border-none focus:outline-none"
-            placeholder="Form Title"
-          />
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex-1">
+            <input
+              type="text"
+              value={form.title}
+              onChange={(e) => setForm(prev => ({ ...prev, title: e.target.value }))}
+              className="text-2xl font-bold w-full border-none focus:outline-none"
+              placeholder="Form Title"
+            />
+          </div>
+          <button
+            onClick={saveForm}
+            disabled={saving}
+            className="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+          >
+            <Save className="h-4 w-4 mr-2" />
+            {saving ? 'Saving...' : 'Save Form'}
+          </button>
         </div>
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+            {error}
+          </div>
+        )}
         <div className="mb-4">
           <textarea
             value={form.description}
@@ -58,7 +97,7 @@ const FormEditor: React.FC = () => {
         <QuestionEditor
           key={question.id}
           question={question}
-          onChange={(updatedQuestion) => {
+          onChange={(updatedQuestion: CategorizeQuestion | ClozeQuestion | ComprehensionQuestion) => {  
             setForm(prev => ({
               ...prev,
               questions: prev.questions.map((q, i) =>
@@ -103,3 +142,6 @@ const FormEditor: React.FC = () => {
 };
 
 export default FormEditor;
+
+
+
