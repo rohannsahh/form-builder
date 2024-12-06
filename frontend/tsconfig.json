@@ -1,10 +1,4 @@
 {
-  "compilerOptions": {
-    "skipLibCheck": true, // Skips type checking for declaration files (.d.ts)
-    "noEmitOnError": false, // Allow output even if there are errors
-    "allowJs": true, // Allow JavaScript files to be compiled
-    "strict": false // Disable strict type-checking rules
-  },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
