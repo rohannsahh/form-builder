@@ -1,4 +1,4 @@
-import React, { useState, useCallback ,useRef,useEffect} from "react"
+import React, { useState, useCallback ,useRef} from "react"
 import { X, GripVertical, Plus, ImageIcon } from 'lucide-react'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
@@ -58,7 +58,6 @@ export const CategorizeEditor: React.FC<CategorizeEditorProps> = ({ question, on
   const [description, setDescription] = useState("")
   const [image, setImage] = useState<File | null>(null)
 
-  const inputRef = useRef(null);
 
 
   const sensors = useSensors(
