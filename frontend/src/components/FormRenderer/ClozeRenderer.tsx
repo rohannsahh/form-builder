@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
 import { ClozeQuestion } from '../../types/form';
 
@@ -28,6 +29,7 @@ export const ClozeRenderer: React.FC<Props> = ({
     sortedBlanks.forEach((blank, index) => {
       const input = (
         <input
+          title="Edit answer"
           type="text"
           value={answers[index] || ''}
           onChange={(e) => handleAnswerChange(index, e.target.value)}
@@ -47,6 +49,7 @@ export const ClozeRenderer: React.FC<Props> = ({
         {text}
         {i < sortedBlanks.length && (
           <input
+            title="Edit answer"
             type="text"
             value={answers[i] || ''}
             onChange={(e) => handleAnswerChange(i, e.target.value)}

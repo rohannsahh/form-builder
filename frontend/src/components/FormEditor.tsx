@@ -1,11 +1,8 @@
-
-
-
 import React, { useState } from 'react';
 import { PlusCircle, Image as ImageIcon, Save } from 'lucide-react';
-import { CategorizeQuestion, ClozeQuestion,ComprehensionQuestion, Form } from '../types/form';
+import { Form, CategorizeQuestion, ClozeQuestion, ComprehensionQuestion } from '../types/form';
 import { api } from '../api/forms';
-import QuestionEditor from './QuestionEditor';
+import QuestionEditor from './Editor/QuestionEditor';
 
 const FormEditor: React.FC = () => {
   const [form, setForm] = useState<Form>({
@@ -22,7 +19,7 @@ const FormEditor: React.FC = () => {
       ...prev,
       questions: [...prev.questions, {
         id: crypto.randomUUID(),
-        type,
+        // type,
         title: '',
         description: '',
           ...(type === 'categorize' 
@@ -97,7 +94,7 @@ const FormEditor: React.FC = () => {
         <QuestionEditor
           key={question.id}
           question={question}
-          onChange={(updatedQuestion: CategorizeQuestion | ClozeQuestion | ComprehensionQuestion) => {  
+          onChange={(updatedQuestion: CategorizeQuestion | ClozeQuestion | ComprehensionQuestion) => {
             setForm(prev => ({
               ...prev,
               questions: prev.questions.map((q, i) =>
@@ -116,6 +113,7 @@ const FormEditor: React.FC = () => {
 
       <div className="flex gap-4 mt-6">
         <button
+          type="button"
           onClick={() => addQuestion('categorize')}
           className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
         >
@@ -123,6 +121,7 @@ const FormEditor: React.FC = () => {
           Categorize
         </button>
         <button
+          type="button"
           onClick={() => addQuestion('cloze')}
           className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
         >
@@ -130,6 +129,7 @@ const FormEditor: React.FC = () => {
           Cloze
         </button>
         <button
+          type="button"
           onClick={() => addQuestion('comprehension')}
           className="flex items-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600"
         >

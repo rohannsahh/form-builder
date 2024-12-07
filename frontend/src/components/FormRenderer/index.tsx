@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import  { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../../api/forms';
-import { Form } from '../../types/form';
+import { Form, CategorizeQuestion, ClozeQuestion, ComprehensionQuestion } from '../../types/form';
 import { CategorizeRenderer } from './CategorizeRenderer';
 import { ClozeRenderer } from './ClozeRenderer';
 import { ComprehensionRenderer } from './ComprehensionRenderer';
@@ -14,11 +16,7 @@ const FormRenderer = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadForm();
-  }, [formId]);
-
-  const loadForm = async () => {
+  const loadForm = useCallback(async () => {
     try {
       if (!formId) throw new Error('Form ID is required');
       const response = await api.getForm(formId);
@@ -28,7 +26,11 @@ const FormRenderer = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [formId]);
+
+  useEffect(() => {
+    loadForm();
+  }, [formId, loadForm]);
 
   const handleAnswer = (questionId: string, answer: any) => {
     setAnswers(prev => ({
@@ -94,13 +96,13 @@ const FormRenderer = () => {
               </div>
 
               {question.type === 'categorize' && (
-                <CategorizeRenderer {...commonProps} />
+                <CategorizeRenderer {...commonProps} question={question as CategorizeQuestion} />
               )}
               {question.type === 'cloze' && (
-                <ClozeRenderer {...commonProps} />
+                <ClozeRenderer {...commonProps} question={question as ClozeQuestion} />
               )}
               {question.type === 'comprehension' && (
-                <ComprehensionRenderer {...commonProps} />
+                <ComprehensionRenderer {...commonProps} question={question as ComprehensionQuestion} />
               )}
             </div>
           );
