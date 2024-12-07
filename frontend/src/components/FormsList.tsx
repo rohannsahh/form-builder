@@ -13,17 +13,28 @@ export const FormsList = () => {
   useEffect(() => {
     loadForms();
   }, []);
-
   const loadForms = async () => {
     try {
       const response = await api.getForms();
-      setForms(response.data);
+      // Ensure we're setting an array, even if empty
+      setForms(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       setError('Failed to load forms');
+      setForms([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
   };
+  // const loadForms = async () => {
+  //   try {
+  //     const response = await api.getForms();
+  //     setForms(response.data);
+  //   } catch (err) {
+  //     setError('Failed to load forms');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const deleteForm = async (id: string) => {
     try {

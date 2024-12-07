@@ -2,8 +2,8 @@
 import axios from 'axios';
 import { Form } from '../types/form';
 
- const API_URL = import.meta.env.BACKEND_URL; // deployement
-// const API_URL ='http://localhost:5000/api';
+ const API_URL = import.meta.env.VITE_BACKEND_URL; // deployement
+;
 
  export const api = {
    getForms: () => 
