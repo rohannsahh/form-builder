@@ -79,6 +79,7 @@ export const ClozeEditor: React.FC<ClozeEditorProps> = ({ question, onChange }) 
       ...question,
       blanks: question.blanks.filter((_, i) => i !== index)
     });
+    console.log(removeBlank);
 
     const isWordUsedElsewhere = question.blanks.some(
       (blank, i) => i !== index && blank.word === removedBlank.word

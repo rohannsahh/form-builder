@@ -36,7 +36,7 @@ export const ClozeRenderer: React.FC<Props> = ({
           className="mx-1 w-24 px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       );
-
+      console.log(input);
       result = (
         result.slice(0, blank.index) +
         `[BLANK_${index}]` +
