@@ -1,24 +1,4 @@
-// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-// import { FormView } from './components/FormView';
-// import FormEditor  from './components/FormEditor';
-// // import { FormsList } from './components/FormsList';
 
-// function App() {
-//   return (
-//     <Router>
-//       <Routes>
-//         <Route path="/" element={<FormEditor />} />
-//         <Route path="/forms/edit/:id" element={<FormEditor />} />
-//         <Route path="/forms/:id" element={<FormView />} />
-//       </Routes>
-//     </Router>
-//   );
-// }
-
-// export default App;
-
-
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import FormEditor from './components/FormEditor';
 import FormRenderer from './components/FormRenderer';
